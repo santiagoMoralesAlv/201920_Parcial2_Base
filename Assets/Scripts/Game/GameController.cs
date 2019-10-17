@@ -3,12 +3,13 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    public delegate void OnTaggedChange(string newTagged);
+    private bool inGame;
 
-    public event OnTaggedChange onTaggedChange;
+    public delegate void EndGame();
+    public event EndGame e_EndGame;
 
     [SerializeField]
-    private float playTime = 60F;
+    private float playTime = 60F, gameTime;
 
     [SerializeField]
     private int playerCount = 4;
@@ -37,22 +38,33 @@ public class GameController : MonoBehaviour
         {
             string prefabPath = i == 0 && instantiateHumanPlayer ? "HumanPlayer" : "AIPlayer";
 
-            GameObject playerInstance = Instantiate(Resources.Load<GameObject>(prefabPath));
+            GameObject playerInstance = Instantiate(Resources.Load<GameObject>(prefabPath), Vector3.zero, Quaternion.identity);
+
             playerInstance.name = string.Format("Player{0}", i + 1);
+            playerInstance.GetComponent<PlayerController>().PlayerName = playerInstance.name;
+
 
             taggedScore.Add(playerInstance.name, 0);
         }
-
-        Invoke("EndGame", playTime);
+        
     }
 
-    private void EndGame()
+    private void Update()
     {
-        onTaggedChange -= UpdateTaggedScore;
+        gameTime -= Time.deltaTime;
+        if (gameTime <= 0) {
+            gameTime = 0;
+            e_EndGame();
+        }
     }
 
-    private void UpdateTaggedScore(string newTaggedPlayer)
+    private void Pause()
     {
-        taggedScore[newTaggedPlayer] += 1;
+        Time.
+    }
+
+    private void UpdateTaggedScore(string taggedPlayer, int score)
+    {
+        taggedScore[taggedPlayer] += 1;
     }
 }

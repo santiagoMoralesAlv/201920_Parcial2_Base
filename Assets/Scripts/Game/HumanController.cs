@@ -5,6 +5,11 @@ public class HumanController : PlayerController
     [SerializeField]
     private LayerMask walkable;
 
+    private void Update()
+    {
+        GoToLocation(GetLocation());
+    }
+
     protected override Vector3 GetLocation()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

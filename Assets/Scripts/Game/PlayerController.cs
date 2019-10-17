@@ -6,49 +6,97 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Collider))]
 public abstract class PlayerController : MonoBehaviour
 {
+    private string playerName;
+    private int score;
+
+    private bool canMov=true;
     [SerializeField]
     private float stopTime = 3F;
-
     protected NavMeshAgent agent { get; set; }
+
+    public delegate void Tagged(string playerName, int score);
+    public event Tagged e_tagged;
 
     public bool IsTagged { get; protected set; }
 
-    public void SwitchRoles()
+    public string PlayerName
     {
-        IsTagged = !IsTagged;
+        get
+        {
+            return playerName;
+        }
 
-        // Pause all logic and restart after
+        set
+        {
+            playerName = value;
+        }
     }
 
-    public void GoToLocation(Vector3 location)
+    public int Score
     {
-        agent.SetDestination(location);
+        get
+        {
+            return score;
+        }
     }
 
-    public virtual IEnumerator StopLogic()
-    {
-        // Stop BT runner if AI player, else stop movement.
-
-        yield return new WaitForSeconds(stopTime);
-        
-        // Restart stuff.
-    }
-
-    protected abstract Vector3 GetLocation();
 
     // Start is called before the first frame update
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        e_tagged += UpdateScore;
     }
+
+    public void SwitchRoles()
+    {
+        IsTagged = !IsTagged;
+
+        if (IsTagged == true) {
+            StopLogic();
+            try
+            {
+                e_tagged(playerName, score);
+            }
+            catch (System.Exception e) {
+                Debug.Log("Eventos no suscritos");
+            }
+        }
+        // Pause all logic and restart after
+    }
+
+    public void GoToLocation(Vector3 location)
+    {
+        if (canMov)
+        {
+            agent.SetDestination(location);
+        }
+    }
+
+    public virtual IEnumerator StopLogic()
+    {
+        // Stop BT runner if AI player, else stop movement.
+        canMov = false;
+        yield return new WaitForSeconds(stopTime);
+        canMov = true;
+        // Restart stuff.
+    }
+
+    protected abstract Vector3 GetLocation();
+
 
     private void OnCollisionEnter(Collision collision)
     {
-        SwitchRoles();
-
-        if (IsTagged)
+        if (collision.gameObject.CompareTag("Player") && IsTagged)
         {
-            StopLogic(); 
+            SwitchRoles();
+            collision.gameObject.GetComponent<PlayerController>().SwitchRoles();
         }
     }
+
+    private void UpdateScore()
+    {
+        score++;
+    }
+    
 }
