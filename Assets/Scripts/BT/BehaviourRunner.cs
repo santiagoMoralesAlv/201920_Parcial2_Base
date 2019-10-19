@@ -16,11 +16,15 @@ namespace AI
 
 		private void Update ()
 		{
-			elapsedTime += Time.deltaTime;
-			if (elapsedTime >= stepTime) {
-				root.Execute ();
-				elapsedTime = 0f;
-			}
+            if (this.GetComponent<PlayerController>().CanMove)
+            {
+                elapsedTime += Time.deltaTime;
+                if (elapsedTime >= stepTime)
+                {
+                    root.Execute();
+                    elapsedTime = 0f;
+                }
+            }
 		}
 	}
 }

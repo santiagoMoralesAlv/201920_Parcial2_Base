@@ -7,14 +7,18 @@ public class HumanController : PlayerController
 
     private void Update()
     {
-        GoToLocation(GetLocation());
+        if (Input.GetMouseButtonDown(0) && CanMove){
+            GoToLocation(GetLocation());
+        }
     }
 
-    protected override Vector3 GetLocation()
+    private Vector3 GetLocation()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        return Physics.Raycast(ray, out hit, walkable) ? hit.point : transform.position;
+        return Physics.Raycast(ray, out hit, walkable, LayerMask.GetMask("Floor"), QueryTriggerInteraction.Ignore) ? hit.point : transform.position;
     }
+
+
 }

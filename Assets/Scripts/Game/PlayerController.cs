@@ -9,15 +9,20 @@ public abstract class PlayerController : MonoBehaviour
     private string playerName;
     private int score;
 
+    [SerializeField]
     private bool canMov=true;
     [SerializeField]
     private float stopTime = 3F;
     protected NavMeshAgent agent { get; set; }
+    
+    public event GameController.Tagged e_tagged;
+    public event GameController.Tagged e_untagged;
 
-    public delegate void Tagged(string playerName, int score);
-    public event Tagged e_tagged;
+    [SerializeField]
+    private bool isTagged;
 
-    public bool IsTagged { get; protected set; }
+    public bool CanMove { get { return canMov; } }
+    public bool IsTagged { get { return isTagged; } }
 
     public string PlayerName
     {
@@ -42,24 +47,43 @@ public abstract class PlayerController : MonoBehaviour
 
 
     // Start is called before the first frame update
-    private void Start()
+    protected void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        e_tagged += UpdateScore;
     }
 
     public void SwitchRoles()
     {
-        IsTagged = !IsTagged;
+        isTagged = !IsTagged;
 
-        if (IsTagged == true) {
-            StopLogic();
+        if (IsTagged == true)
+        {
+            StartCoroutine(StopLogic());
+            UpdateScore();
+            e_tagged(this);
+            this.GetComponent<NavMeshAgent>().speed = 30;
+
+
             try
             {
-                e_tagged(playerName, score);
+                e_tagged(this);
             }
-            catch (System.Exception e) {
-                Debug.Log("Eventos no suscritos");
+            catch (System.NullReferenceException e)
+            {
+                Debug.Log("Eventos no suscritos al PC");
+            }
+        }
+        else
+        {
+            this.GetComponent<NavMeshAgent>().speed = 25f;
+
+            try
+            {
+                e_untagged(this);
+            }
+            catch (System.NullReferenceException e)
+            {
+                Debug.Log("Eventos no suscritos al pC");
             }
         }
         // Pause all logic and restart after
@@ -75,20 +99,16 @@ public abstract class PlayerController : MonoBehaviour
 
     public virtual IEnumerator StopLogic()
     {
-        // Stop BT runner if AI player, else stop movement.
         canMov = false;
         yield return new WaitForSeconds(stopTime);
         canMov = true;
-        // Restart stuff.
     }
-
-    protected abstract Vector3 GetLocation();
-
-
-    private void OnCollisionEnter(Collision collision)
+    
+    protected void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Player") && IsTagged)
+        if (collision.gameObject.CompareTag("Player") && isTagged && canMov)
         {
+            Debug.Log("Colision"+this.playerName);
             SwitchRoles();
             collision.gameObject.GetComponent<PlayerController>().SwitchRoles();
         }
@@ -98,5 +118,7 @@ public abstract class PlayerController : MonoBehaviour
     {
         score++;
     }
+
+    
     
 }

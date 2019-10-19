@@ -1,9 +1,13 @@
 ﻿using AI;
+using UnityEngine;
 
 public class FleeFromTaggedActor : Node
 {
     public override void Execute()
     {
-        throw new System.NotImplementedException();
+
+        this.GetComponent<AIController>().GoToLocation(
+            this.transform.position-(-this.transform.position + this.GetComponent<AIController>().Target.transform.position).normalized
+            );
     }
 }

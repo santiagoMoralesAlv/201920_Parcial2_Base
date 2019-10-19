@@ -5,22 +5,26 @@ using UnityEngine.UI;
 
 public class UIInGame : MonoBehaviour
 {
+    [SerializeField]
     private Text gameTime;
-    private Text firts, second, third;
+    [SerializeField]
+    private GameObject panel;
+    [SerializeField]
+    private Text winner;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        
+        GameController.Instance.e_EndGame += UpdateScores;
     }
 
-    // Update is called once per frame
-    private void UpdateGameTime()
+    private void Update()
     {
-        
+        gameTime.text = "Tiempo de juego: "+(GameController.Instance.GameTime);
     }
+
     void UpdateScores()
     {
-        
+        panel.SetActive(true);
+        winner.text = GameController.Instance.GetWinner();
     }
 }

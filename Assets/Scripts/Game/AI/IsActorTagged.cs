@@ -1,9 +1,9 @@
 ﻿using AI;
 
-public class IsActorTagged : Selector
+public class IsActorTagged : SelectWithOption
 {
-    protected override bool Check()
+    public override bool Check()
     {
-        throw new System.NotImplementedException();
+        return this.GetComponent<AIController>().IsTagged;
     }
 }

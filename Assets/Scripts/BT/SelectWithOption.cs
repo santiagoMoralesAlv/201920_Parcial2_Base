@@ -5,10 +5,10 @@ namespace AI
     public abstract class SelectWithOption : Node
     {
         [SerializeField]
-        private Group successTree;
+        private Node successTree;
 
         [SerializeField]
-        private Group failTree;
+        private Node failTree;
 
         public abstract bool Check();
 
@@ -16,10 +16,12 @@ namespace AI
         {
             if (Check())
             {
+                //Debug.Log("Success"+this);
                 successTree.Execute();
             }
             else
             {
+                //Debug.Log("Fail"+this);
                 failTree.Execute();
             }
         }

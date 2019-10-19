@@ -1,9 +1,23 @@
 ﻿using AI;
+using UnityEngine;
 
-public class IsTaggedActorNear : Selector
+public class IsTaggedActorNear : SelectWithOption
 {
-    protected override bool Check()
+    [SerializeField]
+    private float distance;
+
+    public override bool Check()
     {
-        throw new System.NotImplementedException();
+        try
+        {
+            return Vector3.Magnitude(this.transform.position - this.GetComponent<AIController>().Target.transform.position) < distance;
+        }
+        catch (System.NullReferenceException e) {
+            Debug.LogWarning("No hay target");
+            return false;
+        }
+
+
+
     }
 }

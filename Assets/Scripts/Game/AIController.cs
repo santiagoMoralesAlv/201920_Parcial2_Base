@@ -4,8 +4,37 @@ using UnityEngine;
 [RequireComponent(typeof(BehaviourRunner))]
 public class AIController : PlayerController
 {
-    protected override Vector3 GetLocation()
+    [SerializeField]
+    private GameObject target;
+
+    public GameObject Target
     {
-        throw new System.NotImplementedException();
+        get
+        {
+            return target;
+        }
+
+        set {
+            target = value;
+        }
     }
+
+    protected void Awake()
+    {
+        GameController.Instance.e_newPlayerTagger += UpdateEnemyTagged;
+    }
+
+    private void UpdateEnemyTagged(PlayerController enemyTagged)
+    {
+        if (enemyTagged != this)
+        {
+            target = enemyTagged.gameObject;
+        }
+        else {
+            Debug.Log("Soy el taggeado");
+        }
+    }
+
+
+
 }
